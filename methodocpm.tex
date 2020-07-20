@@ -1,0 +1,63 @@
+\section{Our Clique Percolation Method algorithm methodology}
+
+\subsection{General pseudo-code}
+
+The algorithms we developed to solve the CPM problem are all based on the same principle. All the $k$-cliques of the graph are streamed, and we group them to form the communities as they arrive. The main point is not to store the $k$-cliques in memory, to be able to work on huge graph, with several billions of edges.
+
+A community is a list of $k$-clique, but compressed. So we cannot tell which are the $k$-clique of the community. We do not need this information, what we are interested in is to know the nodes forming the community.
+
+All the algorithms we developed are dealing with $k$-clique arriving one by one. The communities are built gradually, by adding one by one its $k$-clique as they arrive. To do so, each algorithm has its way to store a community, and a test to list the current communities the arriving $k$-clique has to be added to. Then, all the communities of the arriving $k$-clique have to be merged, and the $k$-clique has to be added to it.
+
+At the end of the $k$-clique listing, all the current communities form the final list of communities, and it can be returned. The global pseudo code is given in Algorithm~\ref{methodo:global}. This code is not the way we implement the different algorithms, but it is a guidelines of how we build the communities.
+
+\begin{algorithm}[!htbp]
+  \caption{Building communities with one pass over $k$-cliques of graph $G$}
+  \label{methodo:global}
+  \begin{algorithmic}[1]
+    \State $commus \gets [ \ ]$
+    \For {each $k$-clique $c_k \in G$}
+    \State $l \gets$ \Call{ListCommunitiesOf}{$c_k$,$commus$}
+    \If {$l == \emptyset$} \Comment{$c_k$ starts a new community}
+    \State $commus \gets {\tt Add}(c_k,commus)$ 
+    \Else \Comment{$c_k$ has to be added to existing community}
+    \State $C \gets {\tt Merge}(l)$
+    \State $C \gets C \cup \{c_k\}$
+    \For {$com \in l$}
+    \State $commus \gets {\tt Remove}(com,commus)$
+    \EndFor
+    \State $commus \gets {\tt Add}(C,commus)$
+    \EndIf
+    \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+\subsection{An efficient $k$-clique listing}
+
+First of all, before testing and building communities, we have to be able to list efficiently all the $k$-cliques of the graph. To do so, we use the method developed in [REF], which is the more efficient method existing in the litterature to list $k$-cliques, and it is scaling well for huge graphs. This method is based on using directed graph $\vec{G}$ from a graph $G$, where $v \rightarrow u$ if $\eta(v)<\eta(u)$, with $\eta$ an ordering of the nodes. Then, this directed graph is browsed so that each $k$-clique is seen only once. A pseudocode for this procedure is shown in Algorithm~\ref{methodo:kclist}. $\vec{G}[\Delta_{\vec{G}}(u)]$ represents $G$ restricted to the out neighbours of $u$. 
+
+\begin{algorithm}[!htbp]
+  \caption{Algorithm for listing $k$-cliques}
+  \label{methodo:kclist}
+  \begin{algorithmic}[1]
+    \State Let $\eta$ be a total ordering on the nodes of the input graph $G$
+    \State $\vec{G} \leftarrow$ directed version of $G$, where $v \rightarrow u$ if $\eta(v)<\eta(u)$ 
+    \State \Call{listing}{$k$,$\vec{G}$,$\emptyset$}
+    \Function{listing}{$l$,$\vec{G}$,$C$}
+    \If {$l=2$}
+    \For {each edge $(u,v)$ of $\vec{G}$}
+    \Output $k$-clique $C \cup \{u,v\}$
+    \EndFor
+    \Else
+    \For {each node $u \in V(\vec{G})$}
+    \State \Call{listing}{$l-1$,$\vec{G}[\Delta_{\vec{G}}(u)]$,$C \cup \{u\}$}
+    \EndFor
+    \EndIf
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+\subsection{A Julia implementation}
+
+After working out the algorithms, I worked on the Julia language. We decided to learn this language because we aim to work on the guest graph possible. If it is well used, Julia has a running efficiency comparable to C, but it is much more easy to write. The syntax is similar to the Python syntax, and the efficiency is similar to the C efficiency. A part of my work was to learn this language and its advantages. In addition to the other algorithms, I implemented the one which list kclist, and I obtained similar computation time as the C program. It is also a language easily parallelisable, which is very interesting for working with huge data.
+
+The final objective of this work, which will be ended after the internship, is to have an efficient Julia program for solving the CPM problem. We are optimistic for the efficiency of the converging algorithm described in [REF], and we can at leat give upper and lower bound very efficiently.

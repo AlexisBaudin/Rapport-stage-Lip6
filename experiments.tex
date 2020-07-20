@@ -1,0 +1,138 @@
+\section{Experimental evaluation}
+\label{sec:experiments}
+
+In this section we compare our approach to the state-of-the-art approaches to compute k-clique communities in terms of running time and memory consumption.
+
+\subsection{Experimental Setup}
+% and \cite{kunegis2013konect}
+
+We consider several real-world graphs that we obtained from \cite{snapnets} and present in Tables~\ref{tab:net}. These graphs are large having almost one million edges for the smallest one and almost two billion edges for the largest one. They also have ground truth communities, we will use these only in the case study (Section \ref{sec:casestudy}).
+
+\begin{table}
+\begin{tabular}{|c|c|c|c|}%|c|c|}
+\hline
+networks & $n$ & $m$ & $c$ \\%& $k_{max}$ & $N_{k_{max}}$ \\
+\hline
+\hline
+Amazon & \np{334863} & \np{925872} & 7 \\%& 7 & 32\\%&7
+Youtube & \np{1134890} & \np{2987624} & 51 \\%& 17 & 2\\%&51
+DBLP & \np{425957} & \np{1049866} & 113 \\%& 11 & \num{8.23e14}\\
+Orkut  & \np{3072627} & \np{117185083} & 253 \\%& 12 & \num{4.15e14} \\%  \np{415041933452209} \\%
+Friendster  & \np{124836180} & \np{1806067135} & 304 \\%& $10$ & \num{4.87e14} \\%& 9h59m32s\\  \np{487090833092739} \\%
+LiveJournal & \np{4036538} & \np{34681189} & 360 \\%& $7$& \num{4.49e14} 
+\hline
+\end{tabular}
+\caption{Our set of real-world graphs with ground truth communities.}
+\label{tab:net}
+\end{table}
+
+% Without this definitions you have some errors
+\newcommand{\algo}[1]{Algorithm {#1}}
+
+We carried our experiments on a Linux machine equipped with 4 processors Intel Xeon CPU E5- 2660 @ 2.60 GHz with 10 cores (a total of 40 threads) and with 64 G of RAM DDR4 2133 MHz.\todo{We evaluate both the sequential version of our algorithm, denoted as \algo1, and the parallel version of our algorithm denoted as \algo{$n$}, where $n$ denotes the number of threads. We evaluate our method using 1, 10, and 40 threads (\algo1, \algo10 and \algo{40}, respectively)} against the state-of-the-art for finding k-clique communities\footnote{Our code is available at \url{https://github.com/maxdan94/CPM}.}. In particular, we consider the following approaches:
+\begin{itemize}
+ \item {\bf Palla et al.:} the algorithm proposed in the original paper introducing CPM \cite{palla2005uncovering}. We used the implementation provided by the authors on the dedicated webpage\footnote{\url{http://www.cfinder.org/}}.
+ \item {\bf Kumpula et al.:} The algorithm suggested in \cite{kumpula2008sequential} for which we used ... .
+ \item {\bf Reid et al.} The algorithm suggested in \cite{reid2012percolation} ...
+ \item {\bf Gregori et al.:} The algorithm suggested in \cite{gregori2013parallel} ...
+\end{itemize}
+All the state-of-the-art methods except Kumpula et al. use a subroutine that first list all maximal cliques and then compute the $k$-clique communities out of the $k$-cliques. We thus also include the time to list all maximal cliques using the method detailed in \cite{eppstein2011listing} using the implementation provided by the authors. This method is, to the best of our knowledge, the fastest one for sparse real-world graphs. Note that the time bottleneck of this type of approach is actually the second step (building $k$-clique percolated communities out of the maximal cliques) and thus the running time to list all maximal cliques is a -rather not tight- lower bound on the running time. This method will be referred to by {\bf Eppstein et al.}.
+
+%\subsection{Running time and memory consumption}
+
+%Figure~\ref{fig:time} shows the running time of the algorithms as a function of $k$, when executed on our set of graphs. It shows that our sequential algorithm is significantly more efficient than the other approaches, with its running growing more gracefully as a function of $k$. It is at least one two orders of magnitude faster than...
+
+\subsection{Approximation}
+
+{\color{red}
+
+Max, is the following true ?
+
+CPM = Algorithm 1, algorithm gives exact results.
+
+\bigskip
+
+CPM0 is only on github, we store just nodes.
+Does CPM0 uses union find or overlapping union find structure ?
+
+\bigskip
+
+CPM1 In overlapping union find we store links, we merge two cliques 
+     if they share at least $\frac{(k-1)(k-2)}{2}$ links.
+     
+\bigskip
+
+CPM2 is Algorithm 3, storing links.
+
+\bigskip
+
+Notations starts to be complicated for me, I propose to adopt CPM0,CPM1,....,CPM(n-1)=CPM
+
+where CPMk stores k-1 cliques
+notations.
+
+=============
+
+See also  K-tree  \url{https://en.wikipedia.org/wiki/K-tree}
+
+Our algorithm, that stores links, in fact
+detects subgraphs having a spanning K-tree!
+Yes it seems to be true but they are not maximal it depends on the order.
+
+In practice we detect something that is between a true k-clique percolation
+and a maximal subgraph having spanning k-tree.
+
+It can link and motivate our paper from graph-theoretical perspective
+in addition to existing real-world clique-related motivations. And it will be useful to mention such combinatorial construction in the introduction. 
+
+See a graph is connected iff it has a spanning 1-tree.
+
+Our algorithm (that stores links)
+detects graph components that are connected in spanning k-tree sense.
+
+Indeed, it is not a clique percolation problem, but k-tree spaning decomposition problem.
+We even can define this problem, solve it exactly, than discuss application to clique
+percolation.
+
+=========
+
+
+}
+\begin{table}[H]
+\begin{tabular}{|c|c|c|c|c|c|}
+ \hline
+Network & $k$ & \cpm & \cpmA & \cpmBO & \cpmB \\
+\hline
+\hline
+\multirow{4}{*}{Amazon} & 4 & \np{23134} & \np{23111} & \np{23134} & \np{23134}\\
+ & 5 & \np{10942} & \np{10942} & \np{10942} & \np{10942}\\
+ & 6 & 2621 & 2621 & 2621 & 2621\\
+ & 7 & 30 & 30 & 30 & 30\\
+\hline
+ \multirow{10}{*}{Youtube} & 4 & 7433 & 6840 & 7369 & 7417 \\%7003 & 7270\\
+ & 5 & 2606 & 2222 & 2524 & 2575 \\%2261 & 2465\\
+ & 6 & 1147 & 872 & 1044 & 1107 \\%882 & 1002\\
+ & 7 & 671 & 470 & 591 & 642 \\%461 & 547\\
+ & 8 & 346 & 218 & 293 & 322\\%196 & 267\\
+ & 9 & 235 & 138 & 192 & 213\\%134 & 176\\
+ & 10 & 126 & 96 & 113 & 121\\%88 & 105\\
+ & 11 & 71 & 52 & 58 & 67\\
+ & 12 & 52 & 35 & 47 & 49\\
+ & 13 & 27 & 22 & 26 & 27\\
+\hline
+ \multirow{3}{*}{DBLP} & 4 & \np{47307} & \np{47025} & \np{47305} & \np{47306}\\% \np{47272} & \np{47289}\\
+ & 5 & \np{27075} & \np{27043} & \np{27074} & \np{27075}\\%\np{27062} & \np{27068}\\
+ & 6 & \np{14112} & & \np{14112} & \np{14112} \\%\np{14112} & \np{14112}\\
+ & 7 & - & & 7388 & 7388 \\%\np{7385} & -\\
+\hline
+ \multirow{2}{*}{Orkut} & 4 & \np{306755} & \np{115527} & \np{288209} & \np{298676} \\%\np{261277} & \np{282284}\\
+  & 5 & - & & \np{227274} & \np{240328} \\%\np{203563} & \np{223128}\\
+  & 6 & - & & \np{167610} & \np{179059} \\
+\hline
+ \multirow{2}{*}{LiveJournal} & 4 & \np{173213} & \np{136591} & \np{170188} & \np{171917} \\%\np{165278} & \np{169256}\\
+ & 5 & - & & \np{123470} & \np{125476} \\
+\hline
+\end{tabular}
+\caption{.}
+\label{tab:ncoms}
+\end{table}

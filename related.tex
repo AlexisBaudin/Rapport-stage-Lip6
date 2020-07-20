@@ -1,0 +1,37 @@
+\section{Related Work}
+\label{sec:related}
+
+% \sk{WTF is "k-clique communities"? k-clique percolations? Soit j'ai rate la 
+% definition, soit elle n'existe pas avant.
+% }
+% \md{The definition is in the abstract. It will be in the introduction which 
+% is not written yet. We should use always the same term, say "k-clique 
+% community".}
+
+Existing algorithms to compute all the k-clique communities in an input graph can be split in two categories.
+\begin{enumerate}
+\item Algorithms that compute all maximal cliques of size $k$ or more and then compute all $k$-clique communities out of them. Indeed, two maximal cliques that overlap on $k-1$ nodes or more belong to the same $k$-clique communities. Most state-of-the-art approaches (\cite{palla2005uncovering}, \cite{reid2012percolation} and \cite{gregori2013parallel}) fall in this category.
+\item Algorithms that compute all $k$-cliques and then compute $k$-clique communities out of them strictly following the definitions of a $k$-clique community. \cite{kumpula2008sequential} is the only method falling in this category.
+\end{enumerate}
+
+The differences between the algorithms falling in category (1) are in the method used to find which maximal cliques are adjacent (overlap on $(k-1)$ nodes or more). For instance, in \cite{reid2012percolation} a bloom filter is used in order to reduce the number of clique overlaps computation, while in \cite{gregori2013parallel} massive parallelization is used. But the first step: "computing all maximal cliques" is always the same and is done sequentially even in \cite{gregori2013parallel}.
+While this problem is NP-Hard, algorithms scalable to relatively large sparse real-world graphs exist \cite{eppstein2010listing,eppstein2011listing}. They are based on the Brown-Kerbosch algorithm \cite{bron1973algorithm}.
+
+In Section~\ref{sec:experiments}, when comparing the efficiency in practice of our approach to the state-of-the-art, we simply compare the running time of our algorithm to the running time of the most efficient method to list all maximal cliques \cite{eppstein2011listing}. Note that this time is a lower-bound to the running time of any approach falling in category (1). While this gives a clear disadvantage to our approach (especially as the time bottleneck of the approaches in category (1) is actually the second step) we will see that our approach is still much faster in most settings.
+
+Our approach falls in category (2), except that we do not store the $k$-cliques (or the $(k-1)$-cliques contrarily to what is done in \cite{kumpula2008sequential}), but carry computations on the fly. %\mg{je prefere que on trouve autre chose que on the fly, ca fait trop informal} \md{"on the fly" me semble beaucoup utilisé.}
+
+The algorithm detailed in \cite{kumpula2008sequential}, only algorithm in category (2), proceeds as follows. It starts with the empty graph and then insert edges of the input graph in an arbitrary order. It keeps track of the $k$-cliques formed when adding an edge $(u,v)$, these newly formed $k$-cliques correspond to $(k-2)$-cliques in the subgraph (of the current graph) induced by $\Delta(u)\cap\Delta(v)$. Note that these $(k-2)$-cliques are simply nodes or edges when $k=3$ or $k=4$ respectively. The algorithm then tries to merge the found $k$-cliques into $k$-clique communities using a Union-Find datastructure fill with all $(k-1)$-cliques contained in a found $k$-clique. Note that this second step is similar to the algorithm we describe in Algorithm~\ref{algo:ckcom1} which is a preliminary version of our final algorithm described in Algorithm~\ref{algo:ckcom2}.
+
+As we will see, both our algorithms are orders of magnitude faster than this approach. This is due to the fact that (i) we use the full graph for listing $k$-cliques (using an efficient algorithm for that first step), rather than inserting iteratively all edges and updating the $k$-cliques and (ii) use a more efficient union-find data structure, especially in the case of Algorithm \ref{algo:ckcom2} where we do not explicitly store the $(k-1)$-cliques.
+
+Note that if the input graph has a large clique, say a clique of size $1000$, and that we are interested in $10$-clique communities then the algorithm in category (1) seems more interesting. Indeed, there are at least ${1000 \choose 10}>10^{23}$ $10$-cliques in the input graph which is prohibitively large. Furthermore, this $1000$-clique is actually included in a single $10$-clique community and can be found directly and efficiently using a maximal clique listing algorithm. This is the main reason why there are more methods following the approach of listing maximal cliques (category~(1)) rather than listing $k$-cliques (category~(2)).
+However, this argument does not hold for smaller values of $k$ (e.g. listing all $3$, $4$ or $5$-cliques seems more tractable than listing all maximal cliques). Furthermore it has been found that most real-world graphs actually do not contain very large cliques and that listing $k$-cliques for medium values of $k$ is a scalable problem in practice \cite{}. This makes algorithms in category (2) more interesting for practical scenarios contrarily to what was previously thought.
+
+There are many more algorithms for computing overlapping communities as shown in the dedicated survey \cite{xie2013overlapping}. The main focus of our paper is on the computation of the $k$-clique communities and we defer comparisons to other overlapping community definitions and algorithms to future work. However, we want to stress that $k$-clique communities are particularly interesting, indeed as noted in \cite{gregori2013parallel}:
+\begin{itemize}
+\item $k$-cliques communities are based on topological properties and uses neither heuristics nor function optimizations, in particular they do not depend on the execution of an algorithm;
+\item the definition allows communities to overlap and
+\item each community exists independently of the other ones.
+\end{itemize}
+

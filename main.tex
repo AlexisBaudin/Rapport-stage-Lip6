@@ -1,0 +1,220 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[perpage]{footmisc}
+%\setlength{\bibsep}{0.0pt}
+%% Sets page size and margins
+\usepackage[a4paper,top=3.cm,bottom=3.cm,left=2.4cm,right=2.4cm,marginparwidth=1.75cm]{geometry}
+
+
+\usepackage{color}
+\newcommand{\todo}[1]{\textcolor{red}{ #1}}
+\newcommand{\toimprove}[1]{\textcolor{orange}{ #1}}
+\newcommand{\mg}[1]{\textcolor{green}{MG: #1}}
+\newcommand{\md}[1]{\textcolor{pink}{MD: #1}}
+\newcommand{\sk}[1]{\textcolor{blue}{SK: #1}}
+\newcommand{\cng}[1]{\textcolor{red}{#1}}
+
+\usepackage[autolanguage,np]{numprint}
+
+\usepackage{booktabs} % For formal tables
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+
+\usepackage{siunitx}
+\usepackage[autolanguage,np]{numprint}
+\usepackage[toc,page]{appendix}
+
+\usepackage{multirow}
+\usepackage{xspace}
+
+\algloopdefx[loop]{Iterate}
+[1][]{{\bf iterate} }
+\newcommand{\Output}{\State {\bf output}~}
+\newcommand{\Let}{\State {\bf let}~}
+\newcommand{\Set}{\State {\bf set}~}
+
+\newcommand{\cpm}{\textsc{cpm}\xspace}
+\newcommand{\cpmA}{\textsc{cpm1}\xspace}
+\newcommand{\cpmBO}{\textsc{cpm02}\xspace}
+\newcommand{\cpmB}{\textsc{cpm2}\xspace}
+
+\usepackage{tikz}
+\usetikzlibrary{patterns}
+
+\title{The Clique Percolation Method\\in a Single Pass Over the k-cliques}
+
+\author{}
+\date{}
+
+\begin{document}
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} 
+
+\center % Center everything on the page
+
+\textsc{\LARGE Sorbonne Université}\\[1.5cm] 
+\textsc{\Large Projet STL}\\[0.5cm] 
+\textsc{\large Compression de très grands graphes de terrain}\\[0.5cm] 
+
+\HRule \\[0.4cm]
+{ \huge \bfseries Rapport}\\[0.4cm] % Title of your document
+\HRule \\[1.5cm]
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Auteurs:}\\
+Hichem Rami \textsc{AIT EL HARA}
+\\Adel \textsc{EL AMRAOUI}
+\\Anas \textsc{YAHYAOUI} 
+
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Superviseur:} \\
+Dr. Maximilien \textsc{DANISCH} % Supervisor's Name
+\end{flushright}
+\end{minipage}\\[2cm]
+
+\includegraphics[width=65mm,scale=1]{Contents/logoSU.jpg} % Include a department/university logo - this will require the graphicx package
+ 
+%----------------------------------------------------------------------------------------
+
+\vfill % Fill the rest of the page with whitespace
+
+\end{titlepage}
+
+\newpage
+
+\begin{abstract}
+Automatic detection of relevant groups of nodes in large real-world graphs, 
+i.e. community detection, has applications in many fields and has received a 
+lot of attention these last twenty years. The most popular method designed to 
+find overlapping communities (where a node can belong to several communities)
+is perhaps the clique percolation method (CPM). This method formalizes the
+notion of community as a maximal union of $k$-cliques that can be reached from 
+each other through a series of adjacent $k$-cliques, where two cliques are 
+adjacent iff they overlap on $k-1$ nodes. 
+Despite much effort CPM has not been scalable to large graphs for medium
+values of $k$.
+
+Recent work has shown that it is possible to efficiently list all $k$-cliques 
+in very large real-world graphs for medium values of $k$. We build on 
+top of this work and significantly scale up CPM. In particular, our algorithm
+is several orders of magnitude faster than state-of-the-art methods and we show 
+that we can compute all $8$-clique percolated communities in real-world graphs 
+containing billions of edges within an hour of computation on a commodity machine.
+Our algorithm needs a single pass over the $k$-cliques, without the need of storing them. 
+
+%\todo{It needs $O(k^2\cdot m)$ memory space where $m$ is the number of edges in the input graph and has a running time in $O(k^2\cdot T_k)$ where $T_k$ is the time to list all $k$-cliques}.
+%$m\cdot c^{k-2})$ where $c$ (the core value) measures the sparsity of the input graph.
+%We carry a case study shedding lights on the community structures  of real-world graphs and on CPM.
+
+
+
+%{\color{red} Let's try to find an exact algo ! If we managed before Noel it is ok, if not, I propose to write a paper about subsequent approximations, discussing in details how problematic graphs look like, and why they should be rare in the nature. And our next paper will be about exact version if we are lucky ! }
+
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+
+\input{introduction}
+\input{preliminaries}
+\input{related}
+\input{methodocpm}
+\input{exactalgo}
+\input{converging}
+% \input{analysis}
+\input{experiments}
+\input{casestudy}
+
+\section{conclusion and discussions}
+
+It works!
+
+However, in some rare cases our approximate Algorithms \ref{algo:ckcom2} and
+\ref{algo:ckcom3} merge two different communities into one. 
+As we can deduce from real-world experiences,
+whose results are presented in Table~\ref{tab:ncoms}, 
+it happens only for some rare cases. 
+One of such problematic graphs is presented in
+Figure~\ref{gr1}. 
+
+{\color{red} VERIFY THIS STATEMENT!}
+Algorithms~\ref{algo:ckcom2} and~\ref{algo:ckcom3} 
+produce exact results when $k = 3$: because by construction 
+they store all $k-1$-cliques, i.e. edges int the case of 
+$k=3$.
+In order to get around the problematic case illustrated 
+on Figure~\ref{gr1}
+we could store all triangles. It suggest the creation
+of a family of algorithms, the pseudo-code will remain almost
+the same, but we replace $E(c_{k-1})$ 
+(resp. $E(c_k)$)
+by $\mathcal{E}_\ell(c_{k-1})$ (resp. $\mathcal{E}_\ell(c_k)$)
+where $\mathcal{E}_\ell(c)$ enumerates all cliques of
+size $\ell$ inside a current clique $c$. 
+In this regard, our results could be viewed 
+as $\ell$-clique relaxation of the original 
+clique percolation problem. The quality augments as $\ell$
+approaches $k-1$, when $\ell = k-1$ algorithm produces only 
+exact results. We could also imagine a sequence of 
+passes over the k-cliques considering the difference between 
+numbers of detected communities, when this difference is less than $\epsilon$ we say "Ok, it is good enough".
+
+It should be noted, that the order of $k$-clique
+processing plays an important yet not fully understood
+role in the problematic cases.
+It give rise to many interesting
+graph theoretical questions about
+characterisation of problematic sub-graphs:
+how many of them are presented in a typical real-world graph ?
+does there exists an order of $k$-clique processing that
+completely eliminates all approximation errors ?
+
+
+{\color{red} 
+MAX!!! See, maybe we should turn the paper a way around
+and present it as a sequence of approximate algorithms (starting from cpm0) discussing
+in more details the sequence of counter-examples and giving some intuitions grown under the light of extensive experiments ? 
+Do rare problematic configurations happen
+less and less proportionately frequently
+when we add more and more value to $\ell$
+? 
+
+
+Doing this we could probably cover
+the current lack of serious analysis,
+by providing simple formulae based on natural parameters
+but extended to $\ell$-clique approximation case.
+(A you dare enough to express the complexity using 
+parameters that depends on output?)
+}
+
+{\color{red} We even could add the last Fantomas example 
+from my mail to illustrate how algo CPM0 goes to be bad,
+and why cpm1 is better.}
+
+{\color{red}
+
+En fait dans nos communautés il y a des trous...
+des zones qui doivent
+être interdites
+à ajouter les nouveau cliques... 
+si jamais on arrive a maintenir
+la liste de ces zones de le début ce serait top!
+on va gagner ! Car vos expériences montrent que ils sont quand même assez rares.
+
+}
+
+\bibliographystyle{abbrv}
+\bibliography{biblio}
+
+\end{document}

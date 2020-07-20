@@ -1,0 +1,63 @@
+\section{Converging algorithms}
+
+\subsection{Lower bound algorithm}
+
+
+
+\subsection{Upper bound algorithm}
+
+In this section, we give an algorithm which gives an upper bound of the number of communities from the $k$-clique percolation. This algorithm takes as a parameter the integer $z$ such as $1 \leq z \leq k-1$. The more $z$ is high and the more the algorithm is precise, but with a cost in time and memory efficiency. For $z=k-1$, the value of the bound is the exact number of $k$-clique communities.
+
+The more we add $k$-cliques to a community, the more we increase the possibility of merging it with other communities. So, this upper bound algorithm is based on not adding all the $k$-cliques to the communities (but enough to have a relevant bound). In consequence, some communities which normally have to be merged, are not, and the bound is higher than the real number of $k$-clique communities.
+
+Let $z$ be fixed in $\{1,...,k-1\}$.
+
+A $z$-community is represented as :
+\begin{itemize}
+\item "Packs" of $k$-cliques added to the community. A pack is the set of $(k-1)$-cliques of the $k$-cliques added. Two types of packs are possible, we need to work out wich one is better :
+  \begin{itemize}
+  \item a big clique standing for all its $(k-1)$-sublique
+  \item the exhaustive list of all $(k-1)$-subliques
+  \end{itemize}
+
+  To simplify, we first work on the exhaustive list of all $(k-1)$-subliques added.
+
+\item List of all $z$-subcliques of the $k$-cliques added to the community 
+\end{itemize}
+
+
+\begin{algorithm}[!htbp]
+  \caption{One pass over $k$-cliques, storing some $(k-1)$-cliques}
+  \begin{algorithmic}[1]
+    \State z fixed by the user : $1 \leq z \leq k-1$
+    \State $UF \leftarrow$ Union-Find datastructure \Comment{For $(k-1)$-cliques}
+    \State $Comz \leftarrow$ List$\{\}$ \Comment{$Comz[p]$ : Set of $z$-cliques of community $p$}
+    \For {each $k$-clique $c_k \in G$}
+    \State $p\leftarrow NULL$
+    \For {each $(k-1)$-clique $c_{k-1}$ in $c_k$}
+    \State $q\leftarrow UF.Find(c_{k-1})$
+    \If {$p\neq NULL$ {\bf and} $p\neq q$}
+    \State $UF.Union(p,q)$
+    \State $Comz[q] = Comz[p] \cup Comz[q]$
+    \EndIf
+    \State $p \leftarrow q$
+    \EndFor
+    \State $add\_ck \leftarrow False$
+    \For {each $z$-clique $c_z$ in $c_k$}
+    \If {$c_z \notin Comz[p]$}
+    \State $Comz[p].add(c_z)$
+    \State $add\_ck \leftarrow True$
+    \EndIf
+    \EndFor
+    \If {$add\_ck$}
+    \For {each $(k-1)$-clique $c_{k-1}$ in $c_k$}
+    \State $q\leftarrow UF.Find(c_{k-1})$
+    \If {$q == NULL$}
+    \State $q \leftarrow UF.MakeSet(c_{k-1})$
+    \State $UF.Union(p,q)$
+    \EndIf
+    \EndFor
+    \EndIf
+    \EndFor
+  \end{algorithmic}
+\end{algorithm} 
