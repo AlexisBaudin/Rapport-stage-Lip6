@@ -1,5 +1,13 @@
 \section{Converging algorithms}
 
+The algorithms we developed to the exact computation of $k$-clique communities do not scale well for huge graphs. However, starting from these algorithms, we can make them less precise but more efficient. In consequence, we are able only to have approximation of communities. However, working on an upper and on a lower approximation is very intersting if the gain of time and memory computation are important. That is what we propose here :
+\begin{itemize}
+\item From the algorithm which record the parasites : if we do not compute the parasites, and say that all $k$-cliques represented by the community dataset are $k$-cliques of the community, then there are $k$-cliques which appear to be in the community whereas they are not. In consequence, there are too much potential links between communities, some are merged whereas they should not. This idea gives a lower bound of communities.
+\item From the algorithm which stores the communities as $(k-1)$-cliques : if we do not store all the $(k-1)$-cliques, we earn memory. But some links between current communities are broken, and at the end there are more communities than it should be. There is not enough fusion during the computation. This idea gives an upper bound of communities
+\end{itemize}
+
+More details about these ideas and its implementations are given in this section. The memory and time of computation are well improved compared to exact algorithms described precedently. Besides, the precision achieved is quite encouraging.
+
 \subsection{Lower bound algorithm}
 
 
